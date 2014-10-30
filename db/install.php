@@ -27,5 +27,8 @@
  * @see upgrade_plugins_modules()
  */
 function xmldb_plagiarism_copycheck_install() {
+
+// Fixme - config
+// set_config van bepaalde waarden
 }
 

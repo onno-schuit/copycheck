@@ -30,18 +30,10 @@ class copycheck_settings_form extends moodleform {
     public function definition () {
         $mform =& $this->_form;
 		
-		// Use of the form
+		// Use of the plugin
         $mform->addElement('checkbox', 'copycheck_use', get_string('copycheck_use', 'plagiarism_copycheck'));
         $mform->addHelpButton('copycheck_use', 'copycheck_use', 'plagiarism_copycheck');
-
-		$mform->addElement('text', 'webservice_url', get_string('webservice_url', 'plagiarism_copycheck'), 'size=70');
-		$mform->setType('webservice_url', PARAM_RAW);
-        $mform->addHelpButton('webservice_url', 'webservice_url', 'plagiarism_copycheck');
-
-		$mform->addElement('text', 'reporturl', get_string('reporturl', 'plagiarism_copycheck'), 'size=70');
-		$mform->setType('reporturl', PARAM_RAW);
-        $mform->addHelpButton('reporturl', 'reporturl', 'plagiarism_copycheck');
-
+	
 		$mform->addElement('text', 'clientcode', get_string('clientcode', 'plagiarism_copycheck'));
 		$mform->setType('clientcode', PARAM_RAW);
 

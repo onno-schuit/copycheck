@@ -51,8 +51,6 @@ if (($data = $mform->get_data()) && confirm_sesskey())
     }
 
     echo $OUTPUT->notification(get_string('saved_copycheck_settings', 'plagiarism_copycheck'), 'notifysuccess');
-
-	// Fixme - also check connection ???
 }
 
 
@@ -64,101 +62,10 @@ echo $OUTPUT->box_start();
 $mform->display();
 echo $OUTPUT->box_end();
 
-
-//----------------------------------------------------------------------------------------------------------------
-
-/*
-$filename = "test.txt";
-$handle = fopen($filename, "rb");
-$content = fread($handle, filesize($filename));
-fclose($handle);
-
-$guid = plagiarism_plugin_copycheck::NewGuid();
-// Fixme
-//$reporturl = $CFG->wwwroot . "/plagiarism/copycheck/settings.php";
-$reporturl = $CFG->wwwroot;
-
-$xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<CopyCheck>
-  <client>
-  </client>
-  <managername>
-  </managername>
-  <servername>
-  </servername>
-  <klantcode>solin-2014</klantcode>
-  <wachtwoord>
-  </wachtwoord>
-  <guid>" . $guid . "</guid>
-  <documenttitle>" . $filename . "</documenttitle>
-  <suffix>
-  </suffix>
-  <language>
-  </language>
-  <subject>
-  </subject>
-  <woordenopslaan>
-  </woordenopslaan>
-  <maakimage>
-  </maakimage>
-  <kijkincopycheckdb>true</kijkincopycheckdb>
-  <kijkophetinternet>true</kijkophetinternet>
-  <maakrapportage>true</maakrapportage>
-  <documentopslaan>true</documentopslaan>
-  <orgperc>
-  </orgperc>
-  <maxrapsize>
-  </maxrapsize>
-  <stuuremail>
-  </stuuremail>
-  <emailadres>martijn@solin.nl</emailadres>
-  <submitdatum>
-  </submitdatum>
-  <submittijd>
-  </submittijd>
-  <submitted>
-  </submitted>
-  <negeer>
-  </negeer>
-  <reporturl>" . $reporturl . "</reporturl>
-  <klas>
-  </klas>
-  <studentnummer>
-  </studentnummer>
-  <studentnaam>A User</studentnaam>
-  <studentemailadres>a@solin.nl</studentemailadres>
-  <orgperc>
-  </orgperc>
-  <statuscode>
-  </statuscode>
-  <statusdescription>
-  </statusdescription>
-  <reportformat>
-  </reportformat>
-  <skipauthortitle>False</skipauthortitle>
-  <erroremailadres>
-  </erroremailadres>
-</CopyCheck>";
-
-
-$wsdl = "http://www.copycheck.eu/CCservices.asmx?WSDL";
-    
-$client = new SoapClient($wsdl, array("trace" => 1, "exceptions" => 0));
-
-$parameters = array("guidStr" => $guid, "docFileBytes" => $content, "xmlFileBytes" => utf8_encode($xml), "klantcode" => "solin-2014");
-    
-$values = $client->submitDocument2nd($parameters);
-
-echo "request: <br>\n";
-print_object( $client->__getLastRequest() );
-echo "response: <br>\n";
-print_object( $client->__getLastResponse() );
-
-$resultset = $values->submitDocument2ndResult;
-print_object($resultset);
-*/
-
-
+require_once($CFG->dirroot . "/plagiarism/copycheck/copycheck_submissions.php");
+//print_object(plagiarism_plugin_copycheck_submissions::get_copycheck_xml_template('aaa', 'test.txt'));
+//if(plagiarism_plugin_copycheck_submissions::check_file_extension(plagiarism_plugin_copycheck_submissions::get_soap_client(), ".jpg")) echo "jeej";
+//else																																	echo "boe";
+//print_object(get_config('plagiarism_copycheck'));
 
 echo $OUTPUT->footer();
-

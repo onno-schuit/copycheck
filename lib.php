@@ -27,6 +27,30 @@ require_once($CFG->dirroot.'/plagiarism/lib.php');
 
 class plagiarism_plugin_copycheck extends plagiarism_plugin {
 
+// Todo:
+// - checken verschil file of online text
+// - link naar rapport in grade scherm
+// - pagina voor iframe voor rapport
+
+    /**
+     * hook to allow plagiarism specific information to be displayed beside a submission 
+     * @param array  $linkarraycontains all relevant information for the plugin to generate a link
+     * @return string
+     * 
+     */
+    public function get_links($linkarray) {
+        print_object($linkarray);
+		// Fixme - Here comes the link to the new page where the rapport is displayed
+		/*		
+		global $DB;
+		
+		$assign_id = "";
+		$user_id = "";
+		$link = $DB->get_field('plagiarism_copycheck', 'report_url', array('assign_id' => $assign_id, 'user_id' => $user_id));
+		*/
+		return 'HOWDTY';
+    }
+
     /**
      * hook to add plagiarism specific settings to a module settings page
      * @param object $mform  - Moodle form
@@ -81,17 +105,5 @@ class plagiarism_plugin_copycheck extends plagiarism_plugin {
 			$DB->insert_record('plagiarism_copycheck_assign', $record);
 		}
     }
-
-
-	public static function NewGuid() { 
-		$s = strtolower(md5(uniqid(rand(),true))); 
-		$guidText = 
-			substr($s,0,8) . '-' . 
-			substr($s,8,4) . '-' . 
-			substr($s,12,4). '-' . 
-			substr($s,16,4). '-' . 
-			substr($s,20); 
-		return $guidText;
-	}
 
 }
