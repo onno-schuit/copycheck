@@ -33,6 +33,15 @@ class plagiarism_plugin_copycheck extends plagiarism_plugin {
 // - pagina voor iframe voor rapport
 
     /**
+     * Return the list of form element names.
+     *
+     * @return array contains the form element names.
+     */
+    public function get_configs() {
+        return array("copycheck_use", "clientcode");
+    }
+
+    /**
      * hook to allow plagiarism specific information to be displayed beside a submission 
      * @param array  $linkarraycontains all relevant information for the plugin to generate a link
      * @return string

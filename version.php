@@ -28,7 +28,5 @@ $plugin->requires  = 2014051200;
 $plugin->cron      = 0;
 $plugin->component = 'plagiarism_copycheck';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'CopyCheck for 2.7+';
-$plugin->dependencies = array(
-    'mod_assign' => ANY_VERSION
-);
+$plugin->release   = '1.0';
+$plugin->dependencies = array('mod_assign' => ANY_VERSION);
