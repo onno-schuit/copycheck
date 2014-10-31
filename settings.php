@@ -42,6 +42,9 @@ if ($mform->is_cancelled()) {
 
 if (($data = $mform->get_data()) && confirm_sesskey()) 
 {  
+	// If the checkbox isn't enabled, Moodle doesn't send it with the data...
+	if (!isset($data->copycheck_use)) set_config('copycheck_use', 0, 'plagiarism_copycheck');
+
 	foreach ($data as $field => $value) 
 	{
         if (strpos($field, "submit") === false) 
@@ -61,11 +64,5 @@ echo "<h1>" . get_string('copycheck_settings_header', 'plagiarism_copycheck') . 
 echo $OUTPUT->box_start();
 $mform->display();
 echo $OUTPUT->box_end();
-
-require_once($CFG->dirroot . "/plagiarism/copycheck/copycheck_submissions.php");
-//print_object(plagiarism_plugin_copycheck_submissions::get_copycheck_xml_template('aaa', 'test.txt'));
-//if(plagiarism_plugin_copycheck_submissions::check_file_extension(plagiarism_plugin_copycheck_submissions::get_soap_client(), ".jpg")) echo "jeej";
-//else																																	echo "boe";
-//print_object(get_config('plagiarism_copycheck'));
 
 echo $OUTPUT->footer();

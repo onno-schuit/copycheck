@@ -12,7 +12,6 @@ $observers = array(
         'includefile' => 'plagiarism/copycheck/copycheck_submissions.php',
         'priority'    => 9999
     ),
-	// Fixme - andere functie voor online text?
     array(
         'eventname'   => 'assignsubmission_onlinetext\event\submission_created',
         'callback'    => 'plagiarism_plugin_copycheck_submissions::check_and_send_submission_text_to_copycheck',

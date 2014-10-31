@@ -48,16 +48,36 @@ class plagiarism_plugin_copycheck extends plagiarism_plugin {
      * 
      */
     public function get_links($linkarray) {
-        print_object($linkarray);
-		// Fixme - Here comes the link to the new page where the rapport is displayed
-		/*		
-		global $DB;
+		global $DB, $CFG;
 		
-		$assign_id = "";
-		$user_id = "";
-		$link = $DB->get_field('plagiarism_copycheck', 'report_url', array('assign_id' => $assign_id, 'user_id' => $user_id));
-		*/
-		return 'HOWDTY';
+		$context = context_module::instance($linkarray['cmid']);
+		if (has_capability('mod/assign:grade', $context))
+		{
+			$sql  = "SELECT id ";
+			$sql .= "FROM {plagiarism_copycheck} ";
+			$sql .= "WHERE user_id = " . $linkarray['userid'] . " ";
+
+			if (isset($linkarray['file']))
+			{
+				$sql .= "AND file_type = 'file' ";
+				$sql .= "AND file_id = " . $linkarray['file']->get_id() . " ";
+				$sql .= "AND report_url IS NOT NULL ";
+			}
+			else if (isset($linkarray['content']))
+			{
+				if (trim($linkarray['content']) == "") return;
+
+				$sql .= "AND file_type = 'onlinetext' ";
+				$sql .= "AND assign_id = " . $linkarray['assignment']. " ";
+				$sql .= "AND report_url IS NOT NULL ";
+				$sql .= "ORDER BY timecreated DESC ";
+				$sql .= "LIMIT 1 ";
+			}
+
+			$report_id = $DB->get_field_sql($sql);
+			
+			if ($report_id) return "<br><a href='" . $CFG->wwwroot . "/plagiarism/copycheck/report.php?id=" . $report_id . "&cmid=" . $linkarray['cmid'] . "'>[ " . get_string('view_report', 'plagiarism_copycheck') . " ]</a>";
+		}
     }
 
     /**
@@ -72,21 +92,29 @@ class plagiarism_plugin_copycheck extends plagiarism_plugin {
 		// Only with the assign module
 		if ($modulename != 'mod_assign') return;
 		
-		$checked = 0;
-		$cmid = optional_param('update', 0, PARAM_INT);
-		
-		if ($cmid)
-		{
-			$sql  = "SELECT pca.enabled ";
-			$sql .= "FROM {course_modules} cm ";
-			$sql .= "JOIN {plagiarism_copycheck_assign} pca ON cm.instance = pca.assign_id ";
-			$sql .= "WHERE cm.id = " . $cmid . " ";
-			$checked = $DB->get_field_sql($sql);
-		}
+		$config_settings = get_config('plagiarism_copycheck');
 
-		$mform->addElement('header', 'copycheck', get_string('pluginname', 'plagiarism_copycheck'));
-        $mform->addElement('checkbox', 'copycheck_use', get_string('copycheck_use', 'plagiarism_copycheck'));
-		$mform->setDefault('copycheck_use', $checked);
+		if (!isset($config_settings->copycheck_use)) return;
+		if (!isset($config_settings->clientcode)) return;
+
+		if ($config_settings->copycheck_use && trim($config_settings->clientcode) != "")
+		{
+			$checked = 0;
+			$cmid = optional_param('update', 0, PARAM_INT);
+			
+			if ($cmid)
+			{
+				$sql  = "SELECT pca.enabled ";
+				$sql .= "FROM {course_modules} cm ";
+				$sql .= "JOIN {plagiarism_copycheck_assign} pca ON cm.instance = pca.assign_id ";
+				$sql .= "WHERE cm.id = " . $cmid . " ";
+				$checked = $DB->get_field_sql($sql);
+			}
+
+			$mform->addElement('header', 'copycheck', get_string('pluginname', 'plagiarism_copycheck'));
+			$mform->addElement('checkbox', 'copycheck_use', get_string('copycheck_use', 'plagiarism_copycheck'));
+			$mform->setDefault('copycheck_use', $checked);
+		}
 	}
 
 

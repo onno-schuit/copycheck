@@ -1,104 +1,99 @@
 <?php
 defined('MOODLE_INTERNAL') || die();
 
+
 class plagiarism_plugin_copycheck_submissions {
 
 	public static function check_and_send_submission_file_to_copycheck($event) {
         global $DB, $CFG;
-		
-		$submission_id = $event->objectid;
-		$user_id = $event->userid;
-		$course_id = $event->courseid;
-		$contextid = $event->contextid;
-		
-		if ($assign_id = $DB->get_field('assignsubmission_file', 'assignment', array('id' => $submission_id)))
-		{
-			require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
-			$fileinfos = $DB->get_records_sql("SELECT * FROM {files} WHERE filename != '.' AND contextid=" . $contextid . " AND userid = " . $user_id);
+		$copycheck_config = get_config('plagiarism_copycheck');
+
+		if (isset($copycheck_config->copycheck_use) && $copycheck_config->copycheck_use)
+		{	
+			$submission_id = $event->objectid;
+			$user_id = $event->userid;
+			$course_id = $event->courseid;
+			$contextid = $event->contextid;
 			
-			foreach ($fileinfos as $fileinfo)
+			if ($assign_id = $DB->get_field('assignsubmission_file', 'assignment', array('id' => $submission_id)))
 			{
-				$current_copycheck_record = $DB->get_record('plagiarism_copycheck', array('assign_id' => $assign_id, 'user_id' => $user_id, 'file_id' => $fileinfo->id, 'file_type' => 'file'));
+				require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
-				if (!$current_copycheck_record)
+				$fileinfos = $DB->get_records_sql("SELECT * FROM {files} WHERE filename != '.' AND contextid=" . $contextid . " AND userid = " . $user_id);
+				
+				foreach ($fileinfos as $fileinfo)
 				{
-					if (!isset($soapClient)) $soapClient = self::get_soap_client();
+					$current_copycheck_record = $DB->get_record('plagiarism_copycheck', array('assign_id' => $assign_id, 'user_id' => $user_id, 'file_id' => $fileinfo->id, 'file_type' => 'file'));
 
-					$file_path = '/' . $contextid . '/' . $fileinfo->component . '/' . $fileinfo->filearea . '/' . $fileinfo->itemid . $fileinfo->filepath . $fileinfo->filename;
-					$file_url = file_encode_url($CFG->wwwroot . "/pluginfile.php", $file_path);
-					$file_ext = "." . pathinfo($fileinfo->filename, PATHINFO_EXTENSION);
-					
-					if (self::check_file_extension($soapClient, $file_ext))
+					if (!$current_copycheck_record)
 					{
-						$guid = self::NewGuid();
+						// Set the soapClient
+						if (!isset($soapClient)) $soapClient = self::get_soap_client();
 
-						$handle = fopen($file_url, "rb");
-						$content = stream_get_contents($handle);
-						fclose($handle);
-
-						$xml = self::get_copycheck_xml_template($guid, $fileinfo->filename);
+						$file_ext = "." . pathinfo($fileinfo->filename, PATHINFO_EXTENSION);
 						
-						$copycheck_config = get_config('plagiarism_copycheck');
-						$clientcode = $copycheck_config->clientcode;
-
-						$parameters = array("guidStr" => $guid, "docFileBytes" => $content, "xmlFileBytes" => $xml, "klantcode" => $clientcode);
+						if (self::check_file_extension($soapClient, $file_ext))
+						{
+							$guid = self::NewGuid();
 							
-						
-						//$soapRequest = $client->submitDocumentMoodle($parameters);
+							// Get the content of the file
+							$content = "";
+							$fs = get_file_storage();
+							$file = $fs->get_file($fileinfo->contextid, $fileinfo->component, $fileinfo->filearea, $fileinfo->itemid, $fileinfo->filepath, $fileinfo->filename);
+							
+							if ($file) $content = $file->get_content();
 
-						//echo "request: <br>\n";
-						//print_object( $client->__getLastRequest() );
-						//echo "response: <br>\n";
-						//print_object( $client->__getLastResponse() );
+							$xml = self::get_copycheck_xml_template($guid, $fileinfo->filename);
+							
+							$clientcode = $copycheck_config->clientcode;
 
-						
-						$record = new stdClass();
-						$record->assign_id = $assign_id;
-						$record->user_id = $user_id;
-						$record->file_type = "file";
-						$record->file_id = $fileinfo->id;
-						$record->guid = $guid;
-						
-						echo "insert_record";
-						print_object($record);
-						$new_record_id = $DB->insert_record('plagiarism_copycheck', $record);
-						
-						//$report_url = $soapRequest->submitDocumentMoodleResult;
-						//print_object($report_url);
-						
-						//update report url in record
-						//$update_record = new stdClass();
-						//$update_record->id = $new_record_id;
-						//$update_record->report_url = $report_url;
+							$parameters = array("guidStr" => $guid, "docFileBytes" => $content, "xmlFileBytes" => $xml, "klantcode" => $clientcode);
+								
+							// Make the soap call
+							$soapRequest = $soapClient->submitDocumentMoodle($parameters);
+							
+							// Insert information in copycheck database
+							$record = new stdClass();
+							$record->assign_id = $assign_id;
+							$record->user_id = $user_id;
+							$record->file_type = "file";
+							$record->file_id = $fileinfo->id;
+							$record->guid = $guid;
+							$record->timecreated = time();
+							
+							$new_record_id = $DB->insert_record('plagiarism_copycheck', $record);
+							
+							// Get the report url
+							$report_url = $soapRequest->submitDocumentMoodleResult;
+							
+							// Update report url in copycheck database
+							$update_record = new stdClass();
+							$update_record->id = $new_record_id;
+							$update_record->report_url = $report_url;
+
+							$DB->update_record('plagiarism_copycheck', $update_record);
+						}
 					}
 				}
-				// fixme - del
-				else print_object($current_copycheck_record);
 			}
 		}
-		
-		//exit('hier');
     }
 
 	public static function check_and_send_submission_text_to_copycheck($event) {
 		global $DB, $CFG;
 
-		print_object($event);
+		$copycheck_config = get_config('plagiarism_copycheck');
 
-		$submission_id = $event->objectid;
-		$user_id = $event->userid;
-		$course_id = $event->courseid;
-		$contextid = $event->contextid;
+		if (isset($copycheck_config->copycheck_use) && $copycheck_config->copycheck_use)
+		{	
+			$submission_id = $event->objectid;
+			$user_id = $event->userid;
 
-		if ($assignsubmission = $DB->get_record('assignsubmission_onlinetext', array('id' => $submission_id)))
-		{
-			$current_copycheck_record = $DB->get_record('plagiarism_copycheck', array('assign_id' => $assignsubmission->assignment, 'user_id' => $user_id, 'file_id' => $assignsubmission->id, 'file_type' => 'onlinetext'));
-
-			if (!$current_copycheck_record)
+			if ($assignsubmission = $DB->get_record('assignsubmission_onlinetext', array('id' => $submission_id)))
 			{
-
-				//$soapClient = self::get_soap_client();
+				// Set the soapClient
+				$soapClient = self::get_soap_client();
 
 				$guid = self::NewGuid();
 		
@@ -106,42 +101,35 @@ class plagiarism_plugin_copycheck_submissions {
 
 				$xml = self::get_copycheck_xml_template($guid, $filename);
 				
-				$copycheck_config = get_config('plagiarism_copycheck');
 				$clientcode = $copycheck_config->clientcode;
 
 				$parameters = array("guidStr" => $guid, "docFileBytes" => $assignsubmission->onlinetext, "xmlFileBytes" => $xml, "klantcode" => $clientcode);
-					
-				
-				//$soapRequest = $client->submitDocumentMoodle($parameters);
+							
+				// Make the soap call
+				$soapRequest = $soapClient->submitDocumentMoodle($parameters);
 
-				//echo "request: <br>\n";
-				//print_object( $client->__getLastRequest() );
-				//echo "response: <br>\n";
-				//print_object( $client->__getLastResponse() );
-
-				
+				// Insert information in copycheck database		
 				$record = new stdClass();
 				$record->assign_id = $assignsubmission->assignment;
 				$record->user_id = $user_id;
 				$record->file_type = "onlinetext";
 				$record->file_id = $assignsubmission->id;
 				$record->guid = $guid;
+				$record->timecreated = time();
 				
-				echo "insert_record";
-				print_object($record);
 				$new_record_id = $DB->insert_record('plagiarism_copycheck', $record);
 				
-				//$report_url = $soapRequest->submitDocumentMoodleResult;
-				//print_object($report_url);
+				// Get the report url
+				$report_url = $soapRequest->submitDocumentMoodleResult;
 				
-				//update report url in record
-				//$update_record = new stdClass();
-				//$update_record->id = $new_record_id;
-				//$update_record->report_url = $report_url;
+				// Update report url in copycheck database
+				$update_record = new stdClass();
+				$update_record->id = $new_record_id;
+				$update_record->report_url = $report_url;
+				
+				$DB->update_record('plagiarism_copycheck', $update_record);
 			}
 		}
-
-		//exit();
 	}
 
 
@@ -222,25 +210,7 @@ class plagiarism_plugin_copycheck_submissions {
 	
 		$soapClient = new SoapClient("http://deiputs.com/CCservices.asmx?wsdl", array("trace" => 1, "exceptions" => 0));
 		
-		return $soapClient;
-      
-	  //Fixme - something with try
-	  /*
-	   try { 
-            $options = array( 
-                'soap_version'=>SOAP_1_2, 
-                'exceptions'=>true, 
-                'trace'=>1, 
-                'cache_wsdl'=>WSDL_CACHE_NONE 
-            ); 
-            $client = new SoapClient('http://example.com/doc.asmx?WSDL', $options); 
-		// Note where 'Get' and 'request' tags are in the XML 
-            $results = $client->Get(array('request'=>array('CustomerId'=>'1234'))); 
-        } catch (Exception $e) { 
-            echo "<h2>Exception Error!</h2>"; 
-            echo $e->getMessage(); 
-        } 
-	*/
+		return $soapClient;      
 	}
 
 
