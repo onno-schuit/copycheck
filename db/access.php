@@ -18,7 +18,7 @@
 /**
  * Capability definitions for the publisher module
  *
- * @package    mod_publisher
+ * @package    CopyCheck
  * @copyright  2014 Solin
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
