@@ -169,7 +169,7 @@ class plagiarism_plugin_copycheck_submissions {
 
 
 	public static function get_copycheck_xml_template($guid, $filename) {
-		global $DB;
+		global $DB, $USER;
 		
 		$copycheck_config = get_config('plagiarism_copycheck');
 		$clientcode = $copycheck_config->clientcode;
@@ -219,7 +219,7 @@ class plagiarism_plugin_copycheck_submissions {
 		  <klas></klas>
 		  <studentnummer></studentnummer>
 		  <studentnaam></studentnaam>
-		  <studentemailadres></studentemailadres>
+		  <studentemailadres>" . $USER->email . "</studentemailadres>
 		  <orgperc></orgperc>
 		  <statuscode></statuscode>
 		  <statusdescription></statusdescription>
