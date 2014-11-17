@@ -67,7 +67,7 @@ class plagiarism_plugin_copycheck_submissions {
 								
 								if ($file) $content = $file->get_content();
 
-								$xml = self::get_copycheck_xml_template($guid, $fileinfo->filename);
+								$xml = self::get_copycheck_xml_template($guid, $fileinfo->filename, $assign_id);
 								
 								$clientcode = $copycheck_config->clientcode;
 
@@ -125,7 +125,7 @@ class plagiarism_plugin_copycheck_submissions {
 			
 					$filename = $user_id . "_" . $submission_id . ".html";
 
-					$xml = self::get_copycheck_xml_template($guid, $filename);
+					$xml = self::get_copycheck_xml_template($guid, $filename, $assignsubmission->assignment);
 					
 					$clientcode = $copycheck_config->clientcode;
 
@@ -168,13 +168,18 @@ class plagiarism_plugin_copycheck_submissions {
 	}
 
 
-	public static function get_copycheck_xml_template($guid, $filename) {
+	public static function get_copycheck_xml_template($guid, $filename, $assignid) {
 		global $DB, $USER;
 		
 		$copycheck_config = get_config('plagiarism_copycheck');
 		$clientcode = $copycheck_config->clientcode;
 
 		$admin = current(get_admins());
+
+		$assignment = $DB->get_record('assign', array('id' => $assignid), 'id, name, duedate');
+
+		$duedate = "";
+		if ($assignment->duedate > 0) $duedate = date("YmdHi", $assignment->duedate);
 
 		$xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 		<CopyCheck>
@@ -199,7 +204,7 @@ class plagiarism_plugin_copycheck_submissions {
 		  <fullname></fullname>
 		  <suffix></suffix>
 		  <language></language>
-		  <subject></subject>
+		  <subject>" . $assignment->name . "</subject>
 		  <woordenopslaan></woordenopslaan>
 		  <maakimage></maakimage>
 		  <kijkincopycheckdb></kijkincopycheckdb>
@@ -227,8 +232,9 @@ class plagiarism_plugin_copycheck_submissions {
 		  <skipauthortitle></skipauthortitle>
 		  <skipsametitle></skipsametitle>
 		  <reportlanguage></reportlanguage>
+		  <closing>" . $duedate . "</closing>
 		</CopyCheck>";
-
+		
 		return utf8_encode($xml);
 	}
 
