@@ -15,11 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    CopyCheck
+ * Settings for copycheck
+ *
+ * @package    plagiarism_copycheck
  * @copyright  2014 Solin
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->libdir . '/adminlib.php');
@@ -40,15 +41,12 @@ if ($mform->is_cancelled()) {
     redirect(new moodle_url('/'));
 }
 
-if (($data = $mform->get_data()) && confirm_sesskey()) 
-{  
-	// If the checkbox isn't enabled, Moodle doesn't send it with the data...
-	if (!isset($data->copycheck_use)) set_config('copycheck_use', 0, 'plagiarism_copycheck');
+if (($data = $mform->get_data()) && confirm_sesskey()) {
+    // If the checkbox isn't enabled, Moodle doesn't send it with the data...
+    if (!isset($data->copycheck_use)) set_config('copycheck_use', 0, 'plagiarism_copycheck');
 
-	foreach ($data as $field => $value) 
-	{
-        if (strpos($field, "submit") === false) 
-		{
+    foreach ($data as $field => $value) {
+        if (strpos($field, "submit") === false) {
             set_config($field, $value, 'plagiarism_copycheck');
         }
     }

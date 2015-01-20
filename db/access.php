@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capability definitions for the publisher module
+ * Capability definitions for copycheck
  *
- * @package    CopyCheck
+ * @package    plagiarism_copycheck
  * @copyright  2014 Solin
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

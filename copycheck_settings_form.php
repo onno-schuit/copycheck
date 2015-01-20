@@ -15,7 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    CopyCheck
+ * This is a class which creates the form for copycheck
+ *
+ * @package    plagiarism_copycheck
  * @copyright  2014 Solin
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -24,18 +26,26 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/lib/formslib.php');
 
+/**
+ * Class copycheck_settings_form extended from moodleform for form
+ *
+ * @copyright  2014 Solin
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class copycheck_settings_form extends moodleform {
 
-    // Form definition
-    public function definition () {
+    /**
+     * Function for form definition
+     */
+    public function definition() {
         $mform =& $this->_form;
-		
-		// Use of the plugin
+
+        // Use of the plugin.
         $mform->addElement('checkbox', 'copycheck_use', get_string('copycheck_use', 'plagiarism_copycheck'));
         $mform->addHelpButton('copycheck_use', 'copycheck_use', 'plagiarism_copycheck');
-	
-		$mform->addElement('text', 'clientcode', get_string('clientcode', 'plagiarism_copycheck'));
-		$mform->setType('clientcode', PARAM_RAW);
+
+        $mform->addElement('text', 'clientcode', get_string('clientcode', 'plagiarism_copycheck'));
+        $mform->setType('clientcode', PARAM_RAW);
 
         $this->add_action_buttons(true);
     }
