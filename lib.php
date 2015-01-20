@@ -156,4 +156,11 @@ class plagiarism_plugin_copycheck extends plagiarism_plugin {
         }
     }
 
+
+    /**
+     * cron function
+     */
+    public function cron() {
+    }
+
 }
