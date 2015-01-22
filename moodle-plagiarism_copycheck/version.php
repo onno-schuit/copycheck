@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2015011900;
+$plugin->version   = 2015012200;
 $plugin->requires  = 2014051200;
 $plugin->cron      = 0;
 $plugin->component = 'plagiarism_copycheck';
