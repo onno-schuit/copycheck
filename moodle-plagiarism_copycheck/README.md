@@ -1,7 +1,7 @@
 CopyCheck
 =========
 
-CopyCheck is a plagiarism plugin for Moodle. Depending on the settings, this plugin will send submissions of users to CopyCheck and return a report with details about plagiarism for the given document or text. The plugin works for the assignment module, with file submissions and online text.
+CopyCheck is a plagiarism plugin for Moodle. Depending on the settings, this plugin will send submissions of users to CopyCheck and return a report with details about plagiarism for the given document or text. The plugin works for the assignment module, with file submissions and online text. The plugin does not support other activities at this stage.
 
 
 Installation & Configuration
