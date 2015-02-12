@@ -58,7 +58,6 @@ class plagiarism_plugin_copycheck extends plagiarism_plugin {
         $params = array(
             'cmid' => $linkarray['cmid'],
             'userid' => $linkarray['userid'],
-            'assignment' => $linkarray['assignment'],
         );
 
         $context = context_module::instance($linkarray['cmid']);
@@ -68,12 +67,13 @@ class plagiarism_plugin_copycheck extends plagiarism_plugin {
             $sql .= "WHERE userid = :userid";
 
             if (isset($linkarray['file'])) {
-                $params['fileid ' ] =  $linkarray['file']->get_id();
+                $params['fileid' ] =  $linkarray['file']->get_id();
                 $sql .= "AND filetype = 'file' ";
                 $sql .= "AND fileid = :fileid";
                 $sql .= "AND reporturl IS NOT NULL ";
             } else if (isset($linkarray['content'])) {
                 if (trim($linkarray['content']) == "") return;
+                $params['assignment ' ] =  $linkarray['assignment'];
 
                 $sql .= "AND filetype = 'onlinetext' ";
                 $sql .= "AND assignid = :assignment";
