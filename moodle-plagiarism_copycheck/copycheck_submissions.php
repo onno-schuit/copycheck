@@ -51,11 +51,12 @@ class plagiarism_plugin_copycheck_submissions {
                 if ($assignmentcopycheck = $DB->get_field('plagiarism_copycheck_assign', 'enabled', array('assignid' => $assignid))) {
                     require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
+                    $params = array('contextid' => $contextid, 'userid' => $userid);
                     $sql  = "SELECT * FROM {files} ";
                     $sql .= "WHERE filename != '.' ";
-                    $sql .= "AND contextid=" . $contextid . " ";
-                    $sql .= "AND userid = " . $userid . " ";
-                    $fileinfos = $DB->get_records_sql($sql);
+                    $sql .= "AND contextid= :contextid ";
+                    $sql .= "AND userid = :userid ";
+                    $fileinfos = $DB->get_records_sql($sql, $params);
 
                     foreach ($fileinfos as $fileinfo) {
                         $currentcopycheckrecord = $DB->get_record('plagiarism_copycheck', array('assignid' => $assignid,

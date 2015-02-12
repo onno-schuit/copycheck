@@ -55,12 +55,17 @@ echo "<iframe src='" . $copycheck->reporturl . "' height='800' width='900'></ifr
 echo "<p>&nbsp;</p>\n";
 
 if (!$ispreviousreport) {
+    $params = array(
+        'assignid' => $copycheck->assignid,
+        'userid' => $copycheck->userid,
+        'timecreated' => $copycheck->timecreated
+    );
     $sql  = "SELECT * ";
     $sql .= "FROM {plagiarism_copycheck} ";
-    $sql .= "WHERE assignid = " . $copycheck->assignid . " ";
-    $sql .= "AND userid = " . $copycheck->userid . " ";
-    $sql .= "AND timecreated < " . $copycheck->timecreated . " ";
-    $previousreports = $DB->get_records_sql($sql);
+    $sql .= "WHERE assignid = :assignid ";
+    $sql .= "AND userid = :userid ";
+    $sql .= "AND timecreated < :timecreated ";
+    $previousreports = $DB->get_records_sql($sql, $params);
 
     if (count($previousreports)) {
         echo "<p>" . get_string('view_previous_reports', 'plagiarism_copycheck') . "\n";

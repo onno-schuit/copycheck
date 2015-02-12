@@ -54,27 +54,35 @@ class plagiarism_plugin_copycheck extends plagiarism_plugin {
     public function get_links($linkarray) {
         global $DB, $CFG;
 
+
+        $params = array(
+            'cmid' => $linkarray['cmid'],
+            'userid' => $linkarray['userid'],
+            'assignment' => $linkarray['assignment'],
+        );
+
         $context = context_module::instance($linkarray['cmid']);
         if (has_capability('mod/assign:grade', $context)) {
             $sql  = "SELECT id ";
             $sql .= "FROM {plagiarism_copycheck} ";
-            $sql .= "WHERE userid = " . $linkarray['userid'] . " ";
+            $sql .= "WHERE userid = :userid";
 
             if (isset($linkarray['file'])) {
+                $params['fileid ' ] =  $linkarray['file']->get_id();
                 $sql .= "AND filetype = 'file' ";
-                $sql .= "AND fileid = " . $linkarray['file']->get_id() . " ";
+                $sql .= "AND fileid = :fileid";
                 $sql .= "AND reporturl IS NOT NULL ";
             } else if (isset($linkarray['content'])) {
                 if (trim($linkarray['content']) == "") return;
 
                 $sql .= "AND filetype = 'onlinetext' ";
-                $sql .= "AND assignid = " . $linkarray['assignment']. " ";
+                $sql .= "AND assignid = :assignment";
                 $sql .= "AND reporturl IS NOT NULL ";
                 $sql .= "ORDER BY timecreated DESC ";
                 $sql .= "LIMIT 1 ";
             }
 
-            $reportid = $DB->get_field_sql($sql);
+            $reportid = $DB->get_field_sql($sql, $params);
 
             if ($reportid) {
                 $returnstring = "<br />";
@@ -121,8 +129,8 @@ class plagiarism_plugin_copycheck extends plagiarism_plugin {
                 $sql  = "SELECT pca.enabled ";
                 $sql .= "FROM {course_modules} cm ";
                 $sql .= "JOIN {plagiarism_copycheck_assign} pca ON cm.instance = pca.assignid ";
-                $sql .= "WHERE cm.id = " . $cmid . " ";
-                $checked = $DB->get_field_sql($sql);
+                $sql .= "WHERE cm.id = :cmid ";
+                $checked = $DB->get_field_sql($sql, array('cmid' => $cmid));
             }
 
             $mform->addElement('header', 'copycheck', get_string('pluginname', 'plagiarism_copycheck'));
