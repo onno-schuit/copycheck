@@ -54,53 +54,54 @@ class plagiarism_plugin_copycheck extends plagiarism_plugin {
     public function get_links($linkarray) {
         global $DB, $CFG;
 
-
         $params = array(
             'cmid' => $linkarray['cmid'],
             'userid' => $linkarray['userid'],
         );
 
-        $context = context_module::instance($linkarray['cmid']);
-        if (has_capability('mod/assign:grade', $context)) {
-            $sql  = "SELECT id ";
-            $sql .= "FROM {plagiarism_copycheck} ";
-            $sql .= "WHERE userid = :userid";
+		if (!isset($linkarray['assignment'])) return "";
 
-            if (isset($linkarray['file'])) {
-                $params['fileid' ] =  $linkarray['file']->get_id();
-                $sql .= "AND filetype = 'file' ";
-                $sql .= "AND fileid = :fileid";
-                $sql .= "AND reporturl IS NOT NULL ";
-            } else if (isset($linkarray['content'])) {
-                if (trim($linkarray['content']) == "") return;
-                $params['assignment ' ] =  $linkarray['assignment'];
+		$context = context_module::instance($linkarray['cmid']);
+		if (has_capability('mod/assign:grade', $context)) {
+			$sql  = "SELECT id ";
+			$sql .= "FROM {plagiarism_copycheck} ";
+			$sql .= "WHERE userid = :userid";
 
-                $sql .= "AND filetype = 'onlinetext' ";
-                $sql .= "AND assignid = :assignment";
-                $sql .= "AND reporturl IS NOT NULL ";
-                $sql .= "ORDER BY timecreated DESC ";
-                $sql .= "LIMIT 1 ";
-            }
+			if (isset($linkarray['file'])) {
+				$params['fileid' ] =  $linkarray['file']->get_id();
+				$sql .= "AND filetype = 'file' ";
+				$sql .= "AND fileid = :fileid";
+				$sql .= "AND reporturl IS NOT NULL ";
+			} else if (isset($linkarray['content'])) {
+				if (trim($linkarray['content']) == "") return;
+				$params['assignment'] =  $linkarray['assignment'];
 
-            $reportid = $DB->get_field_sql($sql, $params);
+				$sql .= "AND filetype = 'onlinetext' ";
+				$sql .= "AND assignid = :assignment";
+				$sql .= "AND reporturl IS NOT NULL ";
+				$sql .= "ORDER BY timecreated DESC ";
+				$sql .= "LIMIT 1 ";
+			}
 
-            if ($reportid) {
-                $returnstring = "<br />";
-                // The a link tag with url.
-                $returnstring .= "<a href='";
-                $returnstring .= $CFG->wwwroot . "/plagiarism/copycheck/report.php";
-                $returnstring .= "?id=" . $reportid;
-                $returnstring .= "&cmid=" . $linkarray['cmid'];
-                $returnstring .= "'>";
-                // The string.
-                $returnstring .= "[ ";
-                $returnstring .= get_string('view_report', 'plagiarism_copycheck');
-                $returnstring .= " ]";
-                // Close the link
-                $returnstring .= "</a>";
-                return $returnstring;
-            }
-        }
+			$reportid = $DB->get_field_sql($sql, $params);
+
+			if ($reportid) {
+				$returnstring = "<br />";
+				// The a link tag with url.
+				$returnstring .= "<a href='";
+				$returnstring .= $CFG->wwwroot . "/plagiarism/copycheck/report.php";
+				$returnstring .= "?id=" . $reportid;
+				$returnstring .= "&cmid=" . $linkarray['cmid'];
+				$returnstring .= "'>";
+				// The string.
+				$returnstring .= "[ ";
+				$returnstring .= get_string('view_report', 'plagiarism_copycheck');
+				$returnstring .= " ]";
+				// Close the link
+				$returnstring .= "</a>";
+				return $returnstring;
+			}
+		}
     }
 
     /**
@@ -148,20 +149,24 @@ class plagiarism_plugin_copycheck extends plagiarism_plugin {
     public function save_form_elements($data) {
         global $DB;
 
-        $currentassignmentconfig = $DB->get_record('plagiarism_copycheck_assign', array('assignid' => $data->instance));
+        $configsettings = get_config('plagiarism_copycheck');
+		
+		if ($configsettings->copycheck_use) {
+			$currentassignmentconfig = $DB->get_record('plagiarism_copycheck_assign', array('assignid' => $data->instance));
 
-        $record = new stdClass();
-        $record->assignid = $data->instance;
+			$record = new stdClass();
+			$record->assignid = $data->instance;
 
-        if (isset($data->copycheck_use)) $record->enabled = $data->copycheck_use;
-        else                             $record->enabled = 0;
+			if (isset($data->copycheck_use)) $record->enabled = $data->copycheck_use;
+			else                             $record->enabled = 0;
 
-        if ($currentassignmentconfig) {
-            $record->id = $currentassignmentconfig->id;
-            $DB->update_record('plagiarism_copycheck_assign', $record);
-        } else {
-            $DB->insert_record('plagiarism_copycheck_assign', $record);
-        }
+			if ($currentassignmentconfig) {
+				$record->id = $currentassignmentconfig->id;
+				$DB->update_record('plagiarism_copycheck_assign', $record);
+			} else {
+				$DB->insert_record('plagiarism_copycheck_assign', $record);
+			}
+		}
     }
 
 
