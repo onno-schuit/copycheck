@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['pluginname']                   = 'CopyCheck Plagiarism Plugin';
 $string['copycheck']                    = 'CopyCheck';
 $string['clientcode']                   = 'Client code';
+$string['error_clientcode']				= 'Your client code is not correct. Please check with CopyCheck if you have the correct code.';
 $string['copycheck_use']                = 'Use CopyCheck';
 $string['copycheck_use_help']           = 'If this is enabled, it is possible to add the CopyCheck Plagiarism Plugin to the assign module.';
 $string['saved_copycheck_settings']     = 'Settings succesfully saved.';

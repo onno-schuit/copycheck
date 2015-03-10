@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['pluginname']                   = 'CopyCheck Plagiaat Plugin';
 $string['copycheck']                    = 'CopyCheck';
 $string['clientcode']                   = 'Klant code';
+$string['error_clientcode']				= 'Uw klant code is niet correct. Controleer a.u.b. bij CopyCheck of uw klant code correct is.';
 $string['copycheck_use']                = 'Gebruik CopyCheck';
 $string['copycheck_use_help']           = 'Als deze aanstaat, is het mogelijk om de Copycheck Plagiaat Plugin toe te voegen aan de opdracht module.';
 $string['saved_copycheck_settings']     = 'De instellingen zijn succesvol opgeslagen.';

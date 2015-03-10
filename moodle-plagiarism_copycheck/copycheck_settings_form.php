@@ -46,6 +46,8 @@ class copycheck_settings_form extends moodleform {
 
         $mform->addElement('text', 'clientcode', get_string('clientcode', 'plagiarism_copycheck'));
         $mform->setType('clientcode', PARAM_RAW);
+		$mform->addRule('clientcode', get_string('error_clientcode', 'plagiarism_copycheck'), 'regex', '/[A-Za-z]{2,10}-[0-9]{4}/');
+		$mform->addRule('clientcode', get_string('error_clientcode', 'plagiarism_copycheck'), 'maxlength', '15');
 
         $this->add_action_buttons(true);
     }
