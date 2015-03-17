@@ -59,49 +59,52 @@ class plagiarism_plugin_copycheck extends plagiarism_plugin {
             'userid' => $linkarray['userid'],
         );
 
-		if (!isset($linkarray['assignment'])) return "";
+		if (isset($linkarray['assignment']) || isset($linkarray['file'])) {
 
-		$context = context_module::instance($linkarray['cmid']);
-		if (has_capability('mod/assign:grade', $context)) {
-			$sql  = "SELECT id ";
-			$sql .= "FROM {plagiarism_copycheck} ";
-			$sql .= "WHERE userid = :userid";
+			$context = context_module::instance($linkarray['cmid']);
+			if (has_capability('mod/assign:grade', $context)) {
+				$sql  = "SELECT id ";
+				$sql .= "FROM {plagiarism_copycheck} ";
+				$sql .= "WHERE userid = :userid";
 
-			if (isset($linkarray['file'])) {
-				$params['fileid' ] =  $linkarray['file']->get_id();
-				$sql .= "AND filetype = 'file' ";
-				$sql .= "AND fileid = :fileid";
-				$sql .= "AND reporturl IS NOT NULL ";
-			} else if (isset($linkarray['content'])) {
-				if (trim($linkarray['content']) == "") return;
-				$params['assignment'] =  $linkarray['assignment'];
+				if (isset($linkarray['file'])) {
+					$params['fileid' ] =  $linkarray['file']->get_id();
+					$sql .= "AND filetype = 'file' ";
+					$sql .= "AND fileid = :fileid";
+					$sql .= "AND reporturl IS NOT NULL ";
+				} else if (isset($linkarray['content'])) {
+					if (trim($linkarray['content']) == "") return;
+					$params['assignment'] =  $linkarray['assignment'];
 
-				$sql .= "AND filetype = 'onlinetext' ";
-				$sql .= "AND assignid = :assignment";
-				$sql .= "AND reporturl IS NOT NULL ";
-				$sql .= "ORDER BY timecreated DESC ";
-				$sql .= "LIMIT 1 ";
-			}
+					$sql .= "AND filetype = 'onlinetext' ";
+					$sql .= "AND assignid = :assignment";
+					$sql .= "AND reporturl IS NOT NULL ";
+					$sql .= "ORDER BY timecreated DESC ";
+					$sql .= "LIMIT 1 ";
+				}
 
-			$reportid = $DB->get_field_sql($sql, $params);
+				$reportid = $DB->get_field_sql($sql, $params);
 
-			if ($reportid) {
-				$returnstring = "<br />";
-				// The a link tag with url.
-				$returnstring .= "<a href='";
-				$returnstring .= $CFG->wwwroot . "/plagiarism/copycheck/report.php";
-				$returnstring .= "?id=" . $reportid;
-				$returnstring .= "&cmid=" . $linkarray['cmid'];
-				$returnstring .= "'>";
-				// The string.
-				$returnstring .= "[ ";
-				$returnstring .= get_string('view_report', 'plagiarism_copycheck');
-				$returnstring .= " ]";
-				// Close the link
-				$returnstring .= "</a>";
-				return $returnstring;
+				if ($reportid) {
+					$returnstring = "<br />";
+					// The a link tag with url.
+					$returnstring .= "<a href='";
+					$returnstring .= $CFG->wwwroot . "/plagiarism/copycheck/report.php";
+					$returnstring .= "?id=" . $reportid;
+					$returnstring .= "&cmid=" . $linkarray['cmid'];
+					$returnstring .= "'>";
+					// The string.
+					$returnstring .= "[ ";
+					$returnstring .= get_string('view_report', 'plagiarism_copycheck');
+					$returnstring .= " ]";
+					// Close the link
+					$returnstring .= "</a>";
+					return $returnstring;
+				}
 			}
 		}
+		
+		return "";
     }
 
     /**
