@@ -65,19 +65,19 @@ class plagiarism_plugin_copycheck extends plagiarism_plugin {
 			if (has_capability('mod/assign:grade', $context)) {
 				$sql  = "SELECT id ";
 				$sql .= "FROM {plagiarism_copycheck} ";
-				$sql .= "WHERE userid = :userid";
+				$sql .= "WHERE userid = :userid ";
 
 				if (isset($linkarray['file'])) {
 					$params['fileid' ] =  $linkarray['file']->get_id();
 					$sql .= "AND filetype = 'file' ";
-					$sql .= "AND fileid = :fileid";
+					$sql .= "AND fileid = :fileid ";
 					$sql .= "AND reporturl IS NOT NULL ";
 				} else if (isset($linkarray['content'])) {
 					if (trim($linkarray['content']) == "") return;
 					$params['assignment'] =  $linkarray['assignment'];
 
 					$sql .= "AND filetype = 'onlinetext' ";
-					$sql .= "AND assignid = :assignment";
+					$sql .= "AND assignid = :assignment ";
 					$sql .= "AND reporturl IS NOT NULL ";
 					$sql .= "ORDER BY timecreated DESC ";
 					$sql .= "LIMIT 1 ";
